@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+    <title></title>
+    <script src="js/mui.min.js"></script>
+    <link href="css/mui.min.css" rel="stylesheet"/>
+	<link href="css/header.css"  rel="stylesheet" />
+    <script type="text/javascript" charset="utf-8">
+      	mui.init();
+		mui.plusReady(function () {
+			plus.navigator.setStatusBarStyle("light")
+			plus.navigator.setStatusBarBackground("#0062CC")	
+		})
+    </script>
+</head>
+<body>
+	<header class="mui-bar mui-bar-nav header-bg">
+		<h1 class="mui-title title-font-color" id = 'title'>
+			
+		</h1>
+	</header>
+	
+	<nav class="mui-bar mui-bar-tab">
+		<a class="mui-tab-item mui-active" tindex="0">
+			<span class="mui-icon mui-icon-weixin"></span>
+			<span class="mui-tab-label">我聊</span>
+		</a>
+		<a class="mui-tab-item" tindex="1">
+			<span class="mui-icon mui-icon-phone" ></span>
+			<span class="mui-tab-label">通讯录</span>
+		</a>
+		<a class="mui-tab-item"  tindex="2">
+			<span class="mui-icon mui-icon-navigate"></span>
+			<span class="mui-tab-label">发现</span>
+		</a>
+		<a class="mui-tab-item"  tindex="3">
+			<span class="mui-icon mui-icon-person"></span>
+			<span class="mui-tab-label">我</span>
+		</a>
+	</nav>
+	
+	<script>
+		var pages = [
+			{
+				pageId: 'chat-list',
+				pageUrl: 'chat-list.html'
+			},
+			{
+				pageId: 'contract-list',
+				pageUrl: 'contract-list.html'
+			},
+			{
+				pageId: 'discover-list',
+				pageUrl: 'discover-list.html'
+			},
+			{
+				pageId: 'personal-center',
+				pageUrl: 'personal-center.html'
+			},
+		]
+		
+		var pageStyle = {
+			top: '44px',
+			bottom: '55px'
+		}
+		
+		mui.plusReady(function () {
+			
+			/**
+			 * 禁止返回到登录页面
+			 */
+			// mui.back = function () {
+			// 	return false;
+			// }
+			netChangeSwitch()
+			// 获取当前webview
+		    var indexWebView =  plus.webview.currentWebview()
+			
+			// 新增页面
+			for (let i = 0; i < pages.length; i++) {
+				var page = plus.webview.create(pages[i].pageUrl, pages[i].pageId, pageStyle)
+				page.hide()
+				indexWebView.append(page)
+			}
+			plus.webview.show(pages[0].pageId)
+			
+			// 批量绑定tab时间
+			mui(".mui-bar-tab").on('tap', 'a', function() {
+				var tabindex = this.getAttribute("tindex")
+				plus.webview.show(pages[tabindex].pageId, 'fade-in', 200)
+				// 隐藏其他也买
+				for (let i = 0; i < pages.length; i++) {
+					if (i != tabindex) {
+						plus.webview.hide(pages[i].pageId, "fade-out", 200);
+					}
+				}
+				
+				netChangeSwitch()
+			
+			})
+			
+			
+			
+			setTimeout("initData()", 1000)
+		})
+		
+		function initData() {
+			var chatList = plus.webview.getWebviewById("chat-list");
+			mui.fire(chatList, "refresh")
+			var personalCenter =  plus.webview.getWebviewById("personal_center");
+			mui.fire(personalCenter, "refresh")	
+		}
+		
+		function netChangeSwitch() {
+			// 判断网络状态
+			var connectionStatus = plus.networkinfo.getCurrentType()
+			var titleObj = document.getElementById('title');
+			if (connectionStatus != 0 && connectionStatus != 1) {
+				// 重新打开链接
+				titleObj.innerHTML = "<b>我聊</b>"
+			} else {
+				// 关闭连接
+				titleObj.innerHTML = "<b>我聊(未连接)</b>"
+			}
+		}
+		
+	</script>
+</body>
+</html>

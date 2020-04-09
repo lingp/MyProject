@@ -1,0 +1,114 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link href="css/mui.css" rel="stylesheet" />
+		<link href="css/header.css" />
+	</head>
+
+	<body>
+		<header class="mui-bar mui-bar-nav">
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+			<a id="open-menu" class="mui-icon mui-icon-right-nav mui-pull-right">...</a>
+			<h1 class="mui-title">我的头像</h1>
+		</header>
+		<div class="mui-content" style="text-align: center;">
+			<img id="img-face" src="css/registLogin/arrow2.jpg"/>
+		</div>
+		<div id="sheet-face" class="mui-popover mui-popover-bottom mui-popover-action ">
+			<!-- 可选择菜单 -->
+			<ul class="mui-table-view">
+			  <li class="mui-table-view-cell">
+				<a id="choose-img" href="#">选择照片</a>
+			  </li>
+			  <li class="mui-table-view-cell">
+				<a id="down-img" href="#">下载照片</a>
+			  </li>
+			</ul>
+			<!-- 取消菜单 -->
+			<ul class="mui-table-view">
+			  <li class="mui-table-view-cell">
+				<a href="#sheet-face"><b>取消</b></a>
+			  </li>
+			</ul>
+		</div>		
+		
+		<script src="js/app.js"></script>
+		<script src="js/mui.js"></script>
+		<script type="text/javascript">
+			mui.init()
+			mui.plusReady(function () {
+				
+				refreshFaceInfo()
+				
+				// 选择菜单
+				var openMenu = document.getElementById('open-menu')
+				openMenu.addEventListener('tap', function(){
+					mui('#sheet-face').popover('toggle')
+				})
+				
+				var chooseImgObj = document.getElementById('choose-img');
+				chooseImgObj.addEventListener('tap', function(){
+					mui.openWindow({
+						url: "plugin/v3.1.6/myface-uploader.html",
+						id:"myface-uploader.html",
+						createNew: true});
+					mui("#sheet-face").popover("toggle");
+				})
+				
+				var downImgObj = document.getElementById('down-img');
+				downImgObj.addEventListener('tap', function() {
+					plus.nativeUI.showWaiting("下载中....")
+					
+					var user = app.getUserGlobalInfo();
+					var faceImage = user.faceImgBig;
+					
+					var downTask = plus.downloader.createDownload(
+						app.imgServerUrl + faceImage,
+						{},
+						function(downloadFile, status) {
+							plus.nativeUI.closeWaiting()
+								
+							if (status == 200) {
+								var tempFile = downloadFile.filename;
+								plus.gallery.save(tempFile, function(){
+									app.showToast("保存照片成功", "success")
+								})
+							} else {
+								app.showToast("下载错误...", "error")
+								console.log("下载有问题")
+							}
+								
+						})
+					alert("down")
+					downTask.start()
+				})
+				
+				window.addEventListener("refresh", function(){
+					refreshFaceInfo()
+				})
+				
+			})
+			
+			
+			function refreshFaceInfo() {
+				var user = app.getUserGlobalInfo();
+				var factObj = document.getElementById("img-face")
+				var faceImage = user.faceImgBig;
+							
+				if(user != null && app.isNotNull(faceImage)) {
+					factObj.src = app.imgServerUrl  + faceImage;
+					console.log(app.imgServerUrl  + faceImage)
+					// 获取手机端可见屏幕的宽度
+					var imgWidth = document.body.clientWidth;
+					factObj.width = imgWidth
+					factObj.height = imgWidth
+				}
+			}
+		</script>
+	</body>
+
+</html>

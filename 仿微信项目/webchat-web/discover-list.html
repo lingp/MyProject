@@ -1,0 +1,63 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link href="css/mui.css" rel="stylesheet" />
+	</head>
+
+	<body>
+		<div class="mui-content">
+			<ul class="mui-table-view">
+				<li class="mui-table-view-cell mui-media">
+					<a href="javascript:;">
+						<img class="mui-media-object mui-pull-left" src="./image/friends.png" style="max-width: 24px;height: 24px;">
+						<p class="mui-ellipsis" style="line-height: 24px; color: #000000; font-size: 16px;">
+							<span style="margin-left: 10px;">朋友圈</span>
+						</p>
+					</a>
+				</li>
+			</ul>
+			<br />
+			<ul class="mui-table-view">
+				<li class="mui-table-view-cell mui-media">
+					<a id="add-friend" href="javascript:;">
+						<img class="mui-media-object mui-pull-left" src="./image/addfriends.png" style="max-width: 24px;height: 24px;">
+						<p class="mui-ellipsis" style="line-height: 24px; color: #000000; font-size: 16px;">
+							<span style="margin-left: 10px;">添加好友</span>
+						</p>
+					</a>
+				</li>
+				<li class="mui-table-view-cell mui-media">
+					<a id="scan-me" href="javascript:;">
+						<img class="mui-media-object mui-pull-left" src="./image/scanscan.png" style="max-width: 24px;height: 24px;">
+						<p class="mui-ellipsis" style="line-height: 24px; color: #000000; font-size: 16px;">
+							<span style="margin-left: 10px;">扫一扫</span>
+						</p>
+					</a>
+				</li>
+			</ul>
+		</div>
+		
+		
+		<script src="js/mui.js"></script>
+		<script type="text/javascript">
+			mui.init()
+			mui.plusReady(function () {
+			    var addMyfriend = document.getElementById("add-friend")
+				addMyfriend.addEventListener("tap", function() {
+					mui.openWindow("search-friends.html", "search-friends.html")
+				})
+				
+				var scanMeObj = document.getElementById("scan-me")
+				scanMeObj.addEventListener("tap", function() {
+					mui.openWindow("scan-me.html", "scan-me.html")
+				})
+
+			})
+		</script>
+	</body>
+
+</html>

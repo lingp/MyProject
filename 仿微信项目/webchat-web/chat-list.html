@@ -1,0 +1,390 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link href="css/mui.css" rel="stylesheet" />
+		<style>
+			html,
+			body {
+				height: 100%;
+			}
+			
+			.mui-content {
+				height: 100%;
+				overflow: auto;
+			}
+			
+			.red-point{
+			  position: relative;
+			}
+	
+			.red-point::before{
+			  content: " ";
+			  border: 5px solid #C9394A;/*设置红色*/
+			  border-radius:5px;/*设置圆角*/
+			  position: absolute;
+			  z-index: 3000;
+			  right: 0%;
+			  margin-right: -10px;
+			  margin-top: 0px;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div class="mui-content">
+			<ul class="mui-table-view" id="ul-friend-request-list">
+				
+			</ul>
+			
+			<ul id="ul_chatSnapshot" class="mui-table-view">
+				<!-- <li class="mui-table-view-cell mui-media">
+					<div class="mui-slider-right mui-disabled">
+						<a class="mui-btn mui-btn-red">删除</a>
+					</div>
+					<div class="mui-slider-handle mui-media-body">
+						<img class="mui-media-object mui-pull-left" src="image/face-default-cat.png"/>
+							<span class="red-point">慕课网</span>
+						<p class="mui-ellipsis">这里是聊天内容...</p>
+					</div>
+				</li> -->
+			</ul>
+		</div>
+		
+		<script src="js/mui.js"></script>
+		<script src="js/app.js"></script>
+		<script type="text/javascript">
+			mui.init()
+			mui.plusReady(function () {
+			    var user = app.getUserGlobalInfo();
+				
+				var curWebview = plus.webview.currentWebview();
+				curWebview.addEventListener("show", function(){
+					loadingFriendRequests()
+				})
+				
+				window.addEventListener("refresh", function(){
+					loadingFriendRequests()
+					CHAT.init() 
+				})
+				
+				// 打开聊天页面
+				mui("#ul_chatSnapshot").on('tap', '.chat-with-friend', function() {
+					let friendUserId = this.getAttribute('friendUserId')
+					let friendNickname = this.getAttribute('friendNickname')
+					let friendFaceImg = this.getAttribute('friendFaceImage')
+					
+					console.log('chatting-' + friendUserId)
+					mui.openWindow({
+						url: 'chatting.html',
+						id: 'chatting-' + friendUserId,
+						extras: {
+							friendUserId: friendUserId,
+							friendNickname: friendNickname,
+							friendFaceImg: friendFaceImg
+						}
+					})
+					app.readUserChatSnapshot(user.id, friendUserId)
+					loadingChatSnapShot()
+				})
+				
+				mui("#ul_chatSnapshot").on('tap', '.link-delete', function(e) {
+					var me = this
+					var friendId =  me.getAttribute("friendUserId")
+					
+					// 删除本地聊天记录
+					app.deleteUserChatHistory(user.id, friendId)
+					// 删除本地聊天快照
+					app.deleteUserChatSnapshot(user.id, friendId)
+					// 删除dom 
+					var liObj = me.parentNode.parentNode
+					var ulObj = document.getElementById("ul_chatSnapshot")
+					ulObj.removeChild(liObj)
+				})
+				
+				// 渲染快照列表
+				loadingChatSnapShot() 
+				
+				CHAT.init() 
+			})
+			
+			 window.CHAT = {
+				socket: null,
+				init: function () {
+					if(window.WebSocket) {
+						if (CHAT.socket != null && CHAT.socket != undefined && CHAT.socket.readyState == WebSocket.OPEN) {
+							return ;
+						}
+						CHAT.socket = new WebSocket(app.websocketUrl);
+						CHAT.socket.onopen = CHAT.wsopen
+						CHAT.socket.onclose = CHAT.wsclose
+						CHAT.socket.onerror = CHAT.wserror
+						CHAT.socket.onmessage = CHAT.wsmessage
+					} else {
+						alert('手机设备过旧, 请升级手机设备...')
+					}
+				},
+				chat: function (msg) {
+					if (CHAT.socket != null && CHAT.socket != undefined && CHAT.socket.readyState == WebSocket.OPEN) {
+						CHAT.socket.send(msg)
+					} else {
+						CHAT.init() // 重连
+						setTimeout("CHAT.reChat('" + msg + "')", 10000);
+					}
+					// 渲染快照列表
+					loadingChatSnapShot() 
+				},
+				reChat: function(msg) {
+					console.log('重发消息')
+					CHAT.socket.send(msg)
+				},
+				wsopen: function () {
+					console.log('连接建立')
+					var user = app.getUserGlobalInfo()
+					// 构建ChatMsg
+					var chatMsg = new app.ChatMsg(user.id, null, null, null)
+					// 构建DataContent
+					var dataContent = new app.DataContent(app.CONNECT, chatMsg, null)
+					
+					CHAT.chat(JSON.stringify(dataContent))
+					
+					// 获取未签收的消息
+					fetchUnReadMsg()
+					
+					setInterval("CHAT.keepalive()", 10000);
+				},
+				wsclose: function () {
+					console.log('连接关闭')
+				},
+				wserror: function() {
+					console.log("发生错误")
+				},
+				wsmessage: function (e) {
+					console.log("接收到消息：" + e.data)
+					var rsData = JSON.parse(e.data)
+					
+					// 更新通讯录
+					if (rsData.action == app.PULL_FRIEND) {
+						fetchContractList()
+						return;
+					}
+					
+					var chatMsg = rsData.chatMsg
+					var friendUserId = chatMsg.sendId
+					var chattingWebview = plus.webview.getWebviewById('chatting-' + friendUserId)
+					var isRead = true // 消息是否已读
+					if (chattingWebview != null) {
+						chattingWebview.evalJS('receiveMsg("' + chatMsg.msg +'")')
+					} else { // 聊天页面没有打开
+						isRead = false
+					}
+					
+					// 消息签收
+					var dataContentSign = new app.DataContent(app.SIGNED, null, chatMsg.msgId);
+					console.log(JSON.stringify(dataContentSign))
+					CHAT.chat(JSON.stringify(dataContentSign))
+					
+					
+					// 保存聊天历史记录到本地缓存
+					app.saveUserChatHistory(chatMsg.receiveId, chatMsg.sendId, chatMsg.msg, app.CHAT_MSG_FRIENDS)
+					// 保存快照
+					app.saveUserChatSnapshot(chatMsg.receiveId, chatMsg.sendId, chatMsg.msg, isRead)
+					// 渲染快照列表
+					loadingChatSnapShot() 
+					
+				},
+				signList: function(msgIdList) {
+					var dataContentObh = new app.DataContent(app.SIGNED, null, msgIdList)
+					CHAT.chat(JSON.stringify(dataContentObh))
+				},
+				keepalive: function() {
+					// 构建对象
+					var dataContent = new app.DataContent(app.KEEPALIVE, null, null, null)
+					CHAT.chat(JSON.stringify(dataContent))
+					fetchUnReadMsg()
+					fetchContractList()
+				}
+			};
+			
+			function fetchContractList() {
+				var user = app.getUserGlobalInfo()
+				mui.ajax(app.serverUrl + "/u/myFriends?userId=" + user.id,{
+					data:{},
+					dataType:'json',//服务器返回json格式数据
+					type:'post',//HTTP请求类型
+					timeout:10000,//超时时间设置为10秒；
+					headers:{'Content-Type':'application/json'},	              
+					success:function(data){							
+						if (data.status == 200) {
+							app.setContactList(data.data)
+						} else {
+							app.showToast(data.msg, "error");
+						}
+					}
+				});
+			}
+			
+			function loadingFriendRequests() {
+				var user = app.getUserGlobalInfo();
+				mui.ajax(app.serverUrl + "/u/queryFriendRequestList?userId=" + user.id,{
+					data:{},
+					dataType:'json',//服务器返回json格式数据
+					type:'post',//HTTP请求类型
+					timeout:10000,//超时时间设置为10秒；
+					headers:{'Content-Type':'application/json'},	              
+					success:function(data){
+						var uHtml = ''
+						var ulFriendObj = document.getElementById("ul-friend-request-list")
+						//服务器返回响应
+						if (data.status == 200) {
+							var fList = data.data;
+							if (fList != null && fList.length > 0) {
+								for(let i=0; i<fList.length; i++) {
+									uHtml += renderFriendRequest(fList[i]);
+								}
+							}
+							ulFriendObj.innerHTML = uHtml
+							mui('.operator').on('tap', '.ignoreRequest', function(e) {
+								var friendId = this.getAttribute('friendId')
+								operatorFriendRequset(user.id, friendId, 0)
+							})
+							
+							mui('.operator').on('tap', '.passRequest', function(e) {
+								var friendId = this.getAttribute('friendId')
+								operatorFriendRequset(user.id, friendId, 1)
+							})
+						}
+					},
+					error: function() {
+						console.log('失败')
+					}
+					})
+				}
+				
+			function renderFriendRequest(friend) {
+					var li = "";
+					
+					li = '<li class="mui-table-view-cell mui-media operator">' +
+							'<a href="javascript:;">' +
+								'<img class="mui-media-object mui-pull-left" src="' + app.imgServerUrl + friend.sendFaceImg + '">' +
+								'<span id="nickname" class="mui-pull-right">' +
+									'<button friendId="'+ friend.sendUserId +'" type="button" class="ignoreRequest mui-btn mui-btn-grey" style="padding: 4px 10px;margin-right: 5px;">忽略</button>' +
+									'<button friendId="'+ friend.sendUserId +'" type="button"class="passRequest mui-btn mui-btn-danger"style="padding: 4px 10px;margin-right: 5px;">通过</button>' +
+								'</span>' +
+								'<div class="mui-media-body">' +
+									'<label>'+friend.sendUsername+'</label>' +
+									'<p class="mui-ellipsis">请求添加你为朋友</p>' +
+								'</div>' +
+							'</a>' +
+						'</li>'
+					return li;
+				}
+				
+			function operatorFriendRequset(userId, friendId, oType) {
+				var user = app.getUserGlobalInfo();
+				mui.ajax(app.serverUrl + "/u/operFriendRequest?acceptUserId=" + userId + "&sendUserId=" + friendId + "&oType=" + oType,{
+					data:{},
+					dataType:'json',//服务器返回json格式数据
+					type:'post',//HTTP请求类型
+					timeout:10000,//超时时间设置为10秒；
+					headers:{'Content-Type':'application/json'},	              
+					success:function(data){
+						// TOOD
+						console.log(data.data)
+						app.setContactList(data.data)
+						// 重新加载
+						loadingFriendRequests()
+					},
+					error: function() {
+						console.log('失败')
+					}
+				})
+			}
+			
+			// 展示聊天快照， 渲染列表
+			function loadingChatSnapShot() {
+				var me = app.getUserGlobalInfo()
+				var snapshotList = app.getUserChatSnapshot(me.id);
+				var html = ''
+				
+				var shotObj = document.getElementById('ul_chatSnapshot');
+				shotObj.innerHTML = ''// 把旧的清空
+				for (var i = 0; i < snapshotList.length; i++) {
+					var item = snapshotList[i];
+					var friendId = item.friendId
+					
+					// 从本地联系人中取相关信息
+					var friendInfo =  app.getFriendFromContractList(friendId)
+					
+					var isRead = item.isRead;
+					var span = '';
+					if (!isRead) {
+						span = '<span class="red-point">'+ friendInfo.friendNickname +'</span>'
+					} else {
+						span = '<span >'+ friendInfo.friendNickname +'</span>'
+					}
+					
+					html += 
+					'<li friendUserId="' + friendId + '" friendNickname="' + friendInfo.friendNickname + '" friendFaceImage="' + app.imgServerUrl + friendInfo.factImg + '" class="chat-with-friend mui-table-view-cell mui-media">' +
+						'<div class="mui-slider-right mui-disabled">' +
+							'<a friendUserId="' + friendId + '" class="mui-btn mui-btn-red link-delete">删除</a>' +
+						'</div>' +
+						'<div class="mui-slider-handle mui-media-body">' +
+							'<img class="mui-media-object mui-pull-left" src="'+ app.imgServerUrl + friendInfo.factImg +'"/>' +
+								span +
+							'<p class="mui-ellipsis">'+ item.msg +'</p>' +
+						'</div>' +
+					'</li>';
+				}
+				
+				shotObj.insertAdjacentHTML('beforeend', html)
+				
+			}
+			
+			// 每次重连获取服务器未签收的消息
+			function fetchUnReadMsg() {
+				var user = app.getUserGlobalInfo();
+				var msgIdList = ''
+				mui.ajax(app.serverUrl + "/u/getUnReadMsgList?acceptUserId=" + user.id,{
+					data:{},
+					dataType:'json',//服务器返回json格式数据
+					type:'post',//HTTP请求类型
+					timeout:10000,//超时时间设置为10秒；
+					headers:{'Content-Type':'application/json'},	              
+					success:function(data){
+						if (data.status == 200) {
+							var unReadMsgList = data.data;
+							console.log(JSON.stringify(data.data));
+							// 1.保存聊天记录到本地
+							// 2.保存聊天快照到本地
+							// 3.对这些未签收的消息，批量签收
+							for(var i = 0; i < unReadMsgList.length; i++) {
+								var msgItem = unReadMsgList[i];
+								
+								// 保存聊天记录到本地
+								app.saveUserChatHistory(msgItem.acceptUserId, msgItem.sendUserId, msgItem.msg, app.CHAT_MSG_FRIENDS)
+								
+								// 保存聊天快照到本地
+								app.saveUserChatSnapshot(msgItem.acceptUserId, msgItem.sendUserId, msgItem.msg, false)
+								
+								msgIdList += msgItem.id;
+								msgIdList += ","
+							}
+							
+							CHAT.signList(msgIdList)
+							// 渲染快照列表
+							loadingChatSnapShot() 
+						}
+					},
+					error: function() {
+						console.log('失败')
+					}
+				})
+			}
+		</script>
+	</body>
+
+</html>
