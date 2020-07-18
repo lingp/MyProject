@@ -44,10 +44,9 @@ public class MainActivity extends AppCompatActivity {
         for (int i = 0; i < tabItemList.size(); i++) {
             TabItem tabItem = tabItemList.get(i);
             // 绑定Fragment(将Fragment添加到FragmentTabHost组件上)
+
         }
     }
-
-
 
     // 代表每一个TAB
     class TabItem {
