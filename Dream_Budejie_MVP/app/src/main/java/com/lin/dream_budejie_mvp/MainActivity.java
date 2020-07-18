@@ -7,6 +7,7 @@ import androidx.fragment.app.FragmentTabHost;
 
 import android.os.Build;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TabHost;
@@ -21,7 +22,7 @@ import com.lin.dream_budejie_mvp.pro.pulish.view.PublishFragment;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements TabHost.OnTabChangeListener {
 
     private List<TabItem> tabItemList;
 
@@ -73,7 +74,13 @@ public class MainActivity extends AppCompatActivity {
             if (i == 0) {
                 tabItem.setChecked(true);
             }
+            fragmentTabHost.setOnTabChangedListener(this);
         }
+    }
+
+    @Override
+    public void onTabChanged(String tabId) {
+
     }
 
     // 代表每一个TAB
@@ -141,6 +148,13 @@ public class MainActivity extends AppCompatActivity {
         }
 
         public String getTitleStr() {
+            if (title == 0) {
+                return "";
+            }
+
+            if (TextUtils.isEmpty(this.titleStr)) {
+                titleStr = getString(this.title);
+            }
             return titleStr;
         }
 
