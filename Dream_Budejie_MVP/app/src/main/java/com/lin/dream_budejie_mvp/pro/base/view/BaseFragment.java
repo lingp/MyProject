@@ -21,6 +21,7 @@ public abstract class BaseFragment<P extends MvpBasePresenter> extends MvpFragme
         if (view == null) {
             view = inflater.inflate(getContentView(), container, false);
             initContentView(view);
+            initData();
         }
         // 判断Fragment对应的activity是否存在这个视图
         ViewGroup parent = (ViewGroup) view.getParent();
@@ -39,4 +40,8 @@ public abstract class BaseFragment<P extends MvpBasePresenter> extends MvpFragme
     public abstract int getContentView();
 
     public abstract void initContentView(View view);
+
+    public void initData() {
+
+    }
 }

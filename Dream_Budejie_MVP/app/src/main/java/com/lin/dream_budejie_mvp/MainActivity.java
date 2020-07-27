@@ -4,83 +4,63 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTabHost;
+import androidx.viewpager.widget.ViewPager;
+
 
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.TabHost;
 import android.widget.TextView;
 
+import com.google.android.material.tabs.TabLayout;
 import com.lin.dream_budejie_mvp.pro.attention.view.AttentionFragment;
 import com.lin.dream_budejie_mvp.pro.essence.view.EssenceFragment;
 import com.lin.dream_budejie_mvp.pro.mine.view.MineFragment;
 import com.lin.dream_budejie_mvp.pro.newpost.view.NewPostFragment;
 import com.lin.dream_budejie_mvp.pro.pulish.view.PublishFragment;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements TabHost.OnTabChangeListener {
+public class MainActivity extends AppCompatActivity  {
 
     private List<TabItem> tabItemList;
+
+    private TabLayout tabLayout;
+    private ViewPager viewPager;
+    private MyFragmentPageAdapter myFragmentPageAdapter;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        initViews();
     }
 
-    // 初始化tab数据
-    private void initTabData() {
+    private void initViews() {
+        viewPager = findViewById(R.id.pager);
+        myFragmentPageAdapter = new MyFragmentPageAdapter(getSupportFragmentManager());
+        viewPager.setAdapter(myFragmentPageAdapter);
+
+        tabLayout = findViewById(R.id.tab_Layout);
+        tabLayout.setupWithViewPager(viewPager);
+
         tabItemList = new ArrayList<>();
         // 添加精华tab
-        tabItemList.add(new TabItem(R.drawable.main_bottom_essence_normal, R.drawable.main_bottom_essence_press, R.string.main_essence_text, EssenceFragment.class));
+        tabItemList.add(new TabItem(R.drawable.main_bottom_essence_normal, R.drawable.main_bottom_essence_press, R.string.main_essence_text, EssenceFragment.class, tabLayout.getTabAt(0)));
         // 添加新帖
-        tabItemList.add(new TabItem(R.drawable.main_bottom_newpost_normal, R.drawable.main_bottom_newpost_press, R.string.main_newpost_text, NewPostFragment.class));
+        tabItemList.add(new TabItem(R.drawable.main_bottom_newpost_normal, R.drawable.main_bottom_newpost_press, R.string.main_newpost_text, NewPostFragment.class, tabLayout.getTabAt(1)));
         // 添加发布
-        tabItemList.add(new TabItem(R.drawable.main_bottom_public_normal, R.drawable.main_bottom_public_press, 0, PublishFragment.class));
+        tabItemList.add(new TabItem(R.drawable.main_bottom_public_normal, R.drawable.main_bottom_public_press, 0, PublishFragment.class, tabLayout.getTabAt(2)));
         // 添加关注
-        tabItemList.add(new TabItem(R.drawable.main_bottom_attention_normal, R.drawable.main_bottom_attention_press, R.string.main_attention_text, AttentionFragment.class));
+        tabItemList.add(new TabItem(R.drawable.main_bottom_attention_normal, R.drawable.main_bottom_attention_press, R.string.main_attention_text, AttentionFragment.class, tabLayout.getTabAt(3)));
         // 添加我的
-        tabItemList.add(new TabItem(R.drawable.main_bottom_mine_normal, R.drawable.main_bottom_mine_press, R.string.main_mine_text, MineFragment.class));
-    }
-
-    //  初始化主页选项卡视图
-    @RequiresApi(api = Build.VERSION_CODES.M)
-    private void initTabHost() {
-        // 获取FragmentTabHost TODO，换掉
-        FragmentTabHost fragmentTabHost = findViewById(android.R.id.tabhost);
-        // 绑定TabHost(绑定body)
-        fragmentTabHost.setup(this, getSupportFragmentManager(), android.R.id.tabcontent);
-        // 去掉分割线
-        fragmentTabHost.getTabWidget().setDividerDrawable(null);
-        for (int i = 0; i < tabItemList.size(); i++) {
-            TabItem tabItem = tabItemList.get(i);
-            // 绑定Fragment(将Fragment添加到FragmentTabHost组件上)
-            // newTabSpec代表tab名字
-            // setIndicator: 图片
-            TabHost.TabSpec tabSpec = fragmentTabHost.newTabSpec(tabItem.getTitleStr())
-                    .setIndicator(tabItem.getView());
-            // 添加fragment
-            // tabSpec;选项卡
-            // tabItem.getFragmentClass 具体的Fragment
-            // tabItem.getBundle 给我们的具体的Fragment传参数
-            fragmentTabHost.addTab(tabSpec, tabItem.getFragmentClass(), tabItem.getBundle());
-            // 设置背景颜色
-            fragmentTabHost.getTabWidget().getChildAt(i).setBackgroundColor(getColor(R.color.main_bottom_bg));
-
-            if (i == 0) {
-                tabItem.setChecked(true);
-            }
-            fragmentTabHost.setOnTabChangedListener(this);
-        }
-    }
-
-    @Override
-    public void onTabChanged(String tabId) {
-
+        tabItemList.add(new TabItem(R.drawable.main_bottom_mine_normal, R.drawable.main_bottom_mine_press, R.string.main_mine_text, MineFragment.class, tabLayout.getTabAt(4)));
     }
 
     // 代表每一个TAB
@@ -100,6 +80,8 @@ public class MainActivity extends AppCompatActivity implements TabHost.OnTabChan
         private ImageView imageView;
         private TextView textView;
 
+        private TabLayout.Tab tab;
+
         private Bundle bundle;
 
         private Bundle getBundle() {
@@ -112,11 +94,39 @@ public class MainActivity extends AppCompatActivity implements TabHost.OnTabChan
             return bundle;
         }
 
-        public TabItem(int imageNormal, int imagePress, int title, Class<? extends Fragment> fragmentClass) {
+        public TabItem(int imageNormal, final int imagePress, int title, Class<? extends Fragment> fragmentClass, TabLayout.Tab tab) {
             this.imageNormal = imageNormal;
             this.imagePress = imagePress;
             this.title = title;
             this.fragmentClass = fragmentClass;
+            this.tab = tab;
+
+            this.tab.setText(getTitleStr());
+            this.tab.setIcon(getImageNormal());
+
+            Class cls = this.tab.getClass();
+            try {
+                Field field = cls.getDeclaredField("view");
+                field.setAccessible(true);
+
+                View view = (View) field.get(this.tab);
+                view.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                      for(int i = 0; i < tabItemList.size(); i++) {
+                            if (tabItemList.get(i).getTab() == getTab()) {
+                                getTab().setIcon(getImagePress());
+                            } else {
+                                tabItemList.get(i).getTab().setIcon(tabItemList.get(i).getImageNormal());
+                            }
+                      }
+                    }
+                });
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
         }
 
         public Class<? extends Fragment> getFragmentClass() {
@@ -182,7 +192,6 @@ public class MainActivity extends AppCompatActivity implements TabHost.OnTabChan
             }
         }
 
-
         public View getView() {
 
             if (this.view == null) {
@@ -199,6 +208,14 @@ public class MainActivity extends AppCompatActivity implements TabHost.OnTabChan
                 this.imageView.setImageResource(imageNormal);
             }
             return this.view;
+        }
+
+        public TabLayout.Tab getTab() {
+            return tab;
+        }
+
+        public void setTab(TabLayout.Tab tab) {
+            this.tab = tab;
         }
     }
 }
