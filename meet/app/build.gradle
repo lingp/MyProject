@@ -1,32 +1,56 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 29
-    buildToolsVersion "30.0.1"
+    compileSdkVersion rootProject.ext.android['compileSdkVersion']
+    buildToolsVersion rootProject.ext.android['buildToolsVersion']
 
     defaultConfig {
-        applicationId "com.lin.meet"
-        minSdkVersion 15
-        targetSdkVersion 29
-        versionCode 1
-        versionName "1.0"
+        applicationId rootProject.ext.android['applicationId']
+        minSdkVersion rootProject.ext.android['minSdkVersion']
+        targetSdkVersion rootProject.ext.android['targetSdkVersion']
+        versionCode rootProject.ext.android['versionCode']
+        versionName rootProject.ext.android['versionName']
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
+        // 调试
+        if (rootProject.hasProperty('devBuild')) {
+            splits.abi.enable = false
+            splits.density.enable = false
+            // 禁用PNG压缩
+            aaptOptions.cruncherEnabled = false
+        }
+
+        debug {
+            // 自定义gradle产量
+            buildConfigField("boolean", "LOG_DEBUG", "true")
+            buildConfigField("String", "LOG_TAG", "\"Meet\"")
+            buildConfigField("String", "SP_NAME", "\"Config\"")
+        }
         release {
+            buildConfigField("boolean", "LOG_DEBUG", "false")
+            buildConfigField("String", "LOG_TAG", "\"Meet\"")
+            buildConfigField("String", "SP_NAME", "\"Config\"")
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 }
 
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
-    implementation 'androidx.appcompat:appcompat:1.1.0'
+    // api 代表可以外部调用， implementation 代表本module调用
+//    implementation rootProject.ext.dependencies['appcompat']
+//    api rootProject.ext.dependencies['appcompat']
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
-
+    implementation project(path: ':framework')
 }
