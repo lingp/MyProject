@@ -1,7 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.lin.meet">
 
-
     <application
         android:name=".base.BaseApp"
         android:allowBackup="true"
@@ -22,18 +21,29 @@
             android:value="portrait|landscape" />
 
         <activity android:name=".ui.GuideActivity">
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.MAIN"></action>-->
+<!--                <category android:name="android.intent.category.LAUNCHER"></category>-->
+<!--            </intent-filter>-->
+        </activity>
+
+        <!--引导页 TODO 后面这里打开-->
+        <activity android:name=".ui.IndexActivity">
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.MAIN"></action>-->
+<!--                <category android:name="android.intent.category.LAUNCHER"></category>-->
+<!--            </intent-filter>-->
+        </activity>
+
+        <!--登录页-->
+        <activity android:name=".ui.LoginActivity"></activity>
+        <!--主页-->
+        <activity android:name=".MainActivity" android:theme="@style/Theme.AppCompat.DayNight.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"></action>
                 <category android:name="android.intent.category.LAUNCHER"></category>
             </intent-filter>
         </activity>
-
-        <!--引导页-->
-        <activity android:name=".ui.IndexActivity"></activity>
-        <!--登录页-->
-        <activity android:name=".ui.LoginActivity"></activity>
-        <!--主页-->
-        <activity android:name=".MainActivity"></activity>
 
         <!-- 测试用-->
         <activity android:name=".test.TestActivity"></activity>

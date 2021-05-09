@@ -7,6 +7,7 @@ import android.os.Message;
 import android.text.TextUtils;
 import androidx.annotation.Nullable;
 import com.lin.framework.Base.BaseUIActivity;
+import com.lin.framework.bmob.BombManager;
 import com.lin.framework.entity.Constants;
 import com.lin.framework.utils.SpUtils;
 import com.lin.meet.MainActivity;
@@ -59,6 +60,14 @@ public class IndexActivity extends BaseUIActivity {
             // 非第一次启动，判断是否登录
             String token = SpUtils.getInstance().getString(Constants.SP_TOKEN, "");
             if (TextUtils.isEmpty(token)) { // token为空，跳转到登录页
+
+                // 判断Bomb是否登陆
+                if (BombManager.getInstance().isLogin()) {
+                    // 这里也跳转到主页
+                    intent.setClass(this, MainActivity.class);
+                }
+
+
                 intent.setClass(this, LoginActivity.class);
             } else { // token存在，跳转到主页
                 intent.setClass(this, MainActivity.class);

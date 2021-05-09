@@ -18,8 +18,12 @@ import com.lin.framework.Base.BaseUIActivity;
 import com.lin.framework.bmob.BombManager;
 import com.lin.framework.bmob.IMUser;
 import com.lin.framework.entity.Constants;
+import com.lin.framework.manager.DialogManager;
 import com.lin.framework.utils.LogUtils;
 import com.lin.framework.utils.SpUtils;
+import com.lin.framework.view.DialogView;
+import com.lin.framework.view.LoadingView;
+import com.lin.framework.view.TouchPictureV;
 import com.lin.meet.MainActivity;
 import com.lin.meet.R;
 
@@ -41,6 +45,9 @@ public class LoginActivity extends BaseUIActivity implements View.OnClickListene
     private Button btnLogin;
     private TextView tvTestLogin;
     private TextView tvUserAgreement;
+    DialogView dialogView;
+    TouchPictureV mPictureV;
+    private LoadingView loadingView;
 
     // 60秒倒计时
     private static final int H_TIME = 1001;
@@ -95,13 +102,24 @@ public class LoginActivity extends BaseUIActivity implements View.OnClickListene
 
     private void initDialogView() {
 
+       loadingView = new LoadingView(this);
+
+       dialogView = DialogManager.getInstance().initView(this, R.layout.diag_code_view);
+       mPictureV = dialogView.findViewById(R.id.mPicture);
+       mPictureV.setViewResultListener(new TouchPictureV.OnViewResultListener() {
+            @Override
+            public void onResult() {
+                DialogManager.getInstance().hide(dialogView);
+                sendSms();
+            }
+        });
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_send_code:
-                sendSms();
+                DialogManager.getInstance().show(dialogView);
                 break;
             case R.id.btn_login:
                 login();
@@ -124,11 +142,14 @@ public class LoginActivity extends BaseUIActivity implements View.OnClickListene
                     Toast.LENGTH_SHORT).show();
             return;
         }
+        // 显示loading
+        loadingView.show();
 
         BombManager.getInstance().signOrLoginByMobilePhone(phone, code, new LogInListener<IMUser>() {
             @Override
             public void done(IMUser imUser, BmobException e) {
                 if (e == null) {
+                    loadingView.hide();
                     //登陆成功
                     startActivity(new Intent(LoginActivity.this, MainActivity.class));
                     //把手机号码保存下来

@@ -142,6 +142,11 @@
                 </exclusions>
                 <version>${spring.boot.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-security</artifactId>
+            </dependency>
             <!--Apache 工具包包-->
             <dependency>
                 <groupId>commons-io</groupId>

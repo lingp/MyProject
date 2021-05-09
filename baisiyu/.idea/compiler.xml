@@ -2,12 +2,26 @@
 <project version="4">
   <component name="CompilerConfiguration">
     <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
       <profile name="Maven default annotation processors profile" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="baisiyu" />
+        <module name="baisiyu-utils" />
+        <module name="baisiyu-tests" />
+        <module name="baisiyu-model" />
+        <module name="baisiyu-api" />
+        <module name="baisiyu-common" />
       </profile>
     </annotationProcessing>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="baisiyu-api" options="-parameters" />
+      <module name="baisiyu-common" options="-parameters" />
+      <module name="baisiyu-model" options="-parameters" />
+      <module name="baisiyu-tests" options="-parameters" />
+      <module name="baisiyu-utils" options="-parameters" />
+    </option>
   </component>
 </project>
