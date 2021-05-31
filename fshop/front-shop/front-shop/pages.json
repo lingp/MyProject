@@ -1,0 +1,104 @@
+{
+	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
+		{
+			"path": "pages/index/index",
+			"style": {
+				"navigationBarTitleText": "测试",
+				"app-plus": {
+					"scrollIndicator":"none", // 隐藏滚动条
+					"bounce":"none", // 关闭反弹效果
+					"titleNView": {
+						// 搜索框配置
+						"searchInput": {
+							"align":"left",
+							"backgroundColor":"#F7F7F7",
+							"borderRadius":"4px",
+							"placeholder":"苹果",
+							"placeholderColor":"#CCCCCC",
+							"disabled": true
+						},
+						// 按钮
+						"buttons": [
+							{
+								"color": "#999999",
+								"colorPressed":"#BBBBBB",
+								"float":"left",
+								"fontSize":"22px",
+								"fontSrc":"/static/font/iconfont.ttf",
+								"text":"\ue743"
+							},
+							{
+								"color": "#999999",
+								"colorPressed":"#BBBBBB",
+								"float":"right",
+								"fontSize":"22px",
+								"fontSrc":"/static/font/iconfont.ttf",
+								"text":"\ue62b"
+							}
+						]
+					}
+				}
+			}
+		}
+		,{
+            "path" : "pages/my/my",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false
+            }
+            
+        }
+        ,{
+            "path" : "pages/car/car",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false
+            }
+            
+        }
+        ,{
+            "path" : "pages/classify/classify",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false
+            }
+            
+        }
+    ],
+	"globalStyle": {
+		"navigationBarTextStyle": "black",
+		"navigationBarTitleText": "uni-app",
+		"navigationBarBackgroundColor": "#F8F8F8",
+		"backgroundColor": "#F8F8F8"
+	},
+	"tabBar": {
+	    "color": "#B5B5B5",
+	    "selectedColor": "#FD6801",
+	    "borderStyle": "black",
+	    "backgroundColor": "#ffffff",
+	    "list": [{
+	        "pagePath": "pages/index/index",
+	        "iconPath": "static/image/tabbar/index.png",
+	        "selectedIconPath": "static/image/tabbar/indexSelected.png",
+	        "text": "首页"
+	    }, {
+	        "pagePath": "pages/classify/classify",
+	        "iconPath": "static/image/tabbar/classify.png",
+	        "selectedIconPath": "static/image/tabbar/classifySelected.png",
+	        "text": "分类"
+	    }, {
+	        "pagePath": "pages/car/car",
+	        "iconPath": "static/image/tabbar/car.png",
+	        "selectedIconPath": "static/image/tabbar/carSelected.png",
+	        "text": "购物车"
+	    }, {
+	        "pagePath": "pages/my/my",
+	        "iconPath": "static/image/tabbar/my.png",
+	        "selectedIconPath": "static/image/tabbar/mySelected.png",
+	        "text": "我的"
+	    }]
+	}
+}

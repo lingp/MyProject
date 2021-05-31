@@ -1,0 +1,266 @@
+<template>
+	<div class="content">
+		<div class="nav">
+			<scroller class="scroller" 
+			scroll-direction="horizontal"
+			show-scrollbar="false"
+			>
+			    <div class="scroller-item" 
+					v-for="(item, index) in tabItems" :key="index"
+					@click="selectTab(index)"
+					>
+					<div class="scroller-item-div">
+						<div class="scroller-item-div-item" :class="{ active:index == tabSelectedIndex}">
+							<text class="text" :class="{ active: index == tabSelectedIndex}">{{item.name}}</text>
+						</div>
+					</div>
+			    </div>
+			  </scroller>
+		</div>
+		<div class="list-scroll">
+			<list class="list" show-scrollbar="false">
+				<cell>
+					<!--  轮播图 -->
+					<slider 
+						class="slider"
+						auto-play="true"
+						interval="3000"
+						show-indicators="true"
+					>
+						<div class="frame" v-for="img in imageList">
+						    <image class="image" resize="stretch" :src="img.src"></image>
+						</div>
+						<indicator class="indicator"></indicator>
+					</slider>
+					<!-- 分类 -->
+					<div class="classtify">
+						<div class="classtify-item" v-for="(item,index) in classtifyData" :key="index">
+							<image class="classtify-item-image" :src="item.img_url" resize="stretch"></image>
+							<text class="text">{{item.name}}</text>
+						</div>
+					</div>
+					<!-- 三图广告 -->
+					<div class="three-ad">
+						<div class="three-ad-left">
+							<image class="three-ad-left-image" resize="stretch" src="../../static/image/demo/demo1.jpg"></image>
+						</div>
+						<div class="three-ad-right">
+							<image class="three-ad-right-image" resize="stretch" src="../../static/image/demo/demo2.jpg"></image>
+							<image class="three-ad-right-image" resize="stretch" src="../../static/image/demo/demo2.jpg"></image>
+						</div>
+					</div>
+					
+					<!-- 大图广告 -->
+					
+					
+					<!-- 列表 -->
+				</cell>
+			</list>
+			
+			
+		</div>
+	</div>
+</template>
+
+<script>
+	export default {
+		data() {
+			return {
+				tabSelectedIndex: 0,
+				tabItems: [
+					{
+						"id": 1,
+						"name": "推荐",
+					},
+					{
+						"id": 2,
+						"name": "水果",
+					},
+					{
+						"id": 3,
+						"name": "生鲜",
+					},
+					{
+						"id": 4,
+						"name": "体育",
+					},
+					{
+						"id": 5,
+						"name": "热点",
+					},
+					{
+						"id": 6,
+						"name": "财经",
+					},
+					{
+						"id": 7,
+						"name": "娱乐",
+					}
+				],
+				imageList: [
+					{
+						"src": "../../static/image/demo/demo4.jpg",
+					},
+					{
+						"src": "/static/image/demo/demo8.jpg",
+					}
+				],
+				classtifyData: [
+					{
+						"img_url": "../../static/image/indexnav/1.png",
+						"name": "新品分类"
+					},
+					{
+						"img_url": "../../static/image/indexnav/2.gif",
+						"name": "小米众筹"
+					},
+					{
+						"img_url": "../../static/image/indexnav/3.gif",
+						"name": "以旧换新"
+					},
+					{
+						"img_url": "../../static/image/indexnav/4.gif",
+						"name": "1分拼图"
+					},
+					{
+						"img_url": "../../static/image/indexnav/5.gif",
+						"name": "超值特卖"
+					},
+					{
+						"img_url": "../../static/image/indexnav/6.gif",
+						"name": "小米秒杀"
+					},
+					{
+						"img_url": "../../static/image/indexnav/7.gif",
+						"name": "真心想要"
+					},
+					{
+						"img_url": "../../static/image/indexnav/8.gif",
+						"name": "电视热卖"
+					},
+					{
+						"img_url": "../../static/image/indexnav/9.gif",
+						"name": "家电热卖"
+					},
+					{
+						"img_url": "../../static/image/indexnav/10.gif",
+						"name": "米粉卡"
+					},
+				]
+			}
+		},
+		methods: {
+			selectTab(index) {
+				this.tabSelectedIndex = index
+			}
+		}
+	}
+</script>
+
+<style lang="scss" scoped>
+	.content {
+		flex: 1; 
+		.nav {
+			height: 80rpx;
+			.scroller {
+				height: 80rpx;
+				line-height: 80rpx;
+				flex-direction: row;
+				.scroller-item {
+					width: 120rpx;
+					height: 80rpx;
+					.scroller-item-div {
+						flex: 1;
+						align-items: center;
+						justify-content: center;
+						.scroller-item-div-item {
+							padding-bottom: 10rpx;
+							&.active {
+								border-bottom-width: 5rpx;
+								border-bottom-color: #D44800;
+							}
+							.text {
+								font-size: 30rpx;
+								&.active {
+									color: #D44800;
+								}
+							}
+						}
+					}
+
+				}
+			}
+		}
+		.list-scroll {
+			flex: 1;
+			.list {
+				flex: 1;
+				.slider {
+					height: 350rpx;
+					position: relative;
+					.frame {
+						height: 350rpx;
+						width: 750rpx;
+						.image {
+							height: 350rpx;
+							width: 750rpx;
+						}
+					}
+					.indicator {
+						position: absolute;
+						// left: 0;
+						right: 0;
+						bottom: 0;
+						height: 60rpx;
+						width: 200rpx;
+						background-color: rgba(0, 0, 0, 0);
+						item-size: 20rpx;
+						item-color: #FFFFFF;
+						item-selected-color: #8491A1;
+					}
+				}
+				.classtify {
+					flex-direction: row;
+					flex-wrap: wrap;
+					.classtify-item {
+						width: 150rpx;
+						height: 140rpx;
+						flex-direction: column;
+						justify-content: center;
+						align-items: center;
+						.classtify-item-image {
+							height: 60rpx;
+							width: 60rpx;
+						}
+						.text {
+							font-size: 20rpx;
+							margin-top: 5rpx;
+						}
+					}
+				}
+				.three-ad {
+					flex: 1;
+					height: 530rpx;
+					flex-direction: row;
+					.three-ad-left {
+						background-color: red;
+						flex: 1;
+						.three-ad-left-image {
+							height: 530rpx;
+							width: 375rpx;
+						}
+					}
+					.three-ad-right {
+						flex: 1;
+						padding-left: 5rpx;
+						justify-content: space-between;
+						.three-ad-right-image {
+							width: 365rpx;
+							height: 262rpx;
+						}
+					}
+				}
+			}
+		}
+	}
+</style>
