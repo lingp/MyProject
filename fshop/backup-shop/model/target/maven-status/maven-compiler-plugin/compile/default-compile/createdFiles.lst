@@ -1,0 +1,7 @@
+com/shop/model/category/po/Category.class
+com/shop/model/brand/dto/BrandAppDto.class
+com/shop/model/mappers/category/CategoryMapper.class
+com/shop/model/brand/dto/BrandAdminDto.class
+com/shop/model/category/dto/CategoryAdminDto.class
+com/shop/model/mappers/brand/BrandMapper.class
+com/shop/model/brand/po/Brand.class

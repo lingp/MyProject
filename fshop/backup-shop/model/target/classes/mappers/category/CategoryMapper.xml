@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.shop.model.mappers.category.CategoryMapper">
+    <resultMap id="BaseResultMap" type="com.shop.model.category.po.Category" >
+        <id column="id" property="id"/>
+        <id column="name" property="name"></id>
+        <id column="parent_id" property="parentId"></id>
+        <id column="is_parent" property="isParent"></id>
+        <id column="sort" property="sort"></id>
+        <id column="created_at" property="createdAt"></id>
+        <id column="updated_at" property="updatedAt"></id>
+    </resultMap>
+    <sql id="Base_Column_List" >
+        id, name, parent_id, is_parent, sort, created_at, updated_at
+    </sql>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List" /> from tb_category
+    </select>
+
+    <select id="selectOne" resultMap="BaseResultMap" parameterType="long">
+        select <include refid="Base_Column_List" /> from tb_category where id = #{id}
+    </select>
+
+    <insert id="insertOne" parameterType="com.shop.model.category.po.Category">
+        insert into
+        tb_category (name, parent_id, is_parent, sort)
+        value (#{name}, #{parentId}, #{isParent,jdbcType=TINYINT}, #{sort})
+    </insert>
+
+    <update id="updateOne" parameterType="com.shop.model.category.po.Category">
+        update tb_category
+        <set>
+            <if test="name != null">
+                name = #{name},
+            </if>
+            <if test="parentId != null">
+                parentId = #{parentId},
+            </if>
+            <if test="isParent != null">
+                is_parent = #{isParent,jdbcType=TINYINT},
+            </if>
+            <if  test="sort != null">
+                sort = #{sort}
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!-- TODO 改成软删除  -->
+    <delete id="delOne">
+        delete from tb_category where id = #{id}
+    </delete>
+
+</mapper>

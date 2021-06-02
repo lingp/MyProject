@@ -1,0 +1,43 @@
+{
+  "groups": [
+    {
+      "name": "mysql.core",
+      "type": "com.shop.common.config.mysql.MysqlCoreConfig",
+      "sourceType": "com.shop.common.config.mysql.MysqlCoreConfig"
+    }
+  ],
+  "properties": [
+    {
+      "name": "mysql.core.aliases-package",
+      "type": "java.lang.String",
+      "sourceType": "com.shop.common.config.mysql.MysqlCoreConfig"
+    },
+    {
+      "name": "mysql.core.jdbc-driver",
+      "type": "java.lang.String",
+      "sourceType": "com.shop.common.config.mysql.MysqlCoreConfig"
+    },
+    {
+      "name": "mysql.core.jdbc-password",
+      "type": "java.lang.String",
+      "sourceType": "com.shop.common.config.mysql.MysqlCoreConfig"
+    },
+    {
+      "name": "mysql.core.jdbc-url",
+      "type": "java.lang.String",
+      "description": "这些变量是自动注入的，如：jdbcUrl 对应 mysql-core-jdbc.properties.mysql.core.jdbc-url",
+      "sourceType": "com.shop.common.config.mysql.MysqlCoreConfig"
+    },
+    {
+      "name": "mysql.core.jdbc-user-name",
+      "type": "java.lang.String",
+      "sourceType": "com.shop.common.config.mysql.MysqlCoreConfig"
+    },
+    {
+      "name": "mysql.core.root-mapper",
+      "type": "java.lang.String",
+      "sourceType": "com.shop.common.config.mysql.MysqlCoreConfig"
+    }
+  ],
+  "hints": []
+}

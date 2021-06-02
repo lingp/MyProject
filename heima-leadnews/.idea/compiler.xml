@@ -9,12 +9,12 @@
         <module name="heima-leadnews-apis" />
         <module name="heima-leadnews-login" />
         <module name="heima-leadnews-common" />
-        <module name="heima-leadnews-utils" />
         <module name="heima-leadnews-behavior" />
         <module name="heima-leadnews-model" />
         <module name="service-mycat" />
         <module name="heima-leadnews-user" />
         <module name="heima-leadnews-article" />
+        <module name="heima-leadnews-utils" />
       </profile>
     </annotationProcessing>
   </component>

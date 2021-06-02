@@ -2,6 +2,7 @@
 	<view class="content">
 		<scroll-view 
 		scroll-x="true" 
+		ref="scroll"
 		:scroll-into-view="scrollItemId"
 		class="index-tab">
 			<view class="index-tab-item" 
@@ -216,19 +217,52 @@
 				}
 			})
 		},
+		watch: {
+			tabSelectedIndex: function(newVal, oldVal) {
+				let seleceIndex = 2 // 选中的相对位置
+				let firstIndex = 0
+				let lastIndex = 6
+				let that = this
+				if (newVal > seleceIndex) {
+					uni.createSelectorQuery().select('#test'+lastIndex).fields({ 
+					  size: true,//是否返回节点尺寸（width height）
+					  rect: true,//是否返回节点的 scrollLeft scrollTop，节点必须是 scroll-view 或者 viewport
+					  scrollOffset: true,//是否返回节点的 scrollLeft scrollTop，节点必须是 scroll-view 或者 viewport
+					}, (res) => {
+					  if (res.right > 375) {
+						  that.scrollItemId = "test" + lastIndex
+					  }
+					}).exec();
+				} else {
+					uni.createSelectorQuery().select('#test'+firstIndex).fields({
+					  size: true,//是否返回节点尺寸（width height）
+					  rect: true,//是否返回节点的 scrollLeft scrollTop，节点必须是 scroll-view 或者 viewport
+					  scrollOffset: true,//是否返回节点的 scrollLeft scrollTop，节点必须是 scroll-view 或者 viewport
+					}, (res) => {
+					  if (res.left < 0) {
+							that.scrollItemId = "test" + firstIndex
+					  }
+					}).exec();
+				}
+				
+				
+				
+				
+			}
+		},
 		methods: {
 			selectTab(index) {
 				this.tabSelectedIndex = index
 			},
 			mainSwiperChange(e) {
 				this.tabSelectedIndex = e.target.current
-				// TODO，需要优化
-				let that = this
-				that.$nextTick(()=> {
-					// test 后面用ID,替换
-					that.scrollItemId = "test" + that.tabSelectedIndex
-					console.log(that.scrollItemId)
-				});
+				// // TODO，需要优化
+				// let that = this
+				// that.$nextTick(()=> {
+				// 	// test 后面用ID,替换
+				// 	that.scrollItemId = "test" + that.tabSelectedIndex
+				// 	console.log(that.scrollItemId)
+				// });
 			},
 		}
 	}

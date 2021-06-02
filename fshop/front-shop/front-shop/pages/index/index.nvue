@@ -4,6 +4,7 @@
 			<scroller class="scroller" 
 			scroll-direction="horizontal"
 			show-scrollbar="false"
+			ref="scroller"
 			>
 			    <div class="scroller-item" 
 					v-for="(item, index) in tabItems" :key="index"
@@ -18,51 +19,92 @@
 			  </scroller>
 		</div>
 		<div class="list-scroll">
-			<list class="list" show-scrollbar="false">
-				<cell>
-					<!--  轮播图 -->
-					<slider 
-						class="slider"
-						auto-play="true"
-						interval="3000"
-						show-indicators="true"
-					>
-						<div class="frame" v-for="img in imageList">
-						    <image class="image" resize="stretch" :src="img.src"></image>
-						</div>
-						<indicator class="indicator"></indicator>
-					</slider>
-					<!-- 分类 -->
-					<div class="classtify">
-						<div class="classtify-item" v-for="(item,index) in classtifyData" :key="index">
-							<image class="classtify-item-image" :src="item.img_url" resize="stretch"></image>
-							<text class="text">{{item.name}}</text>
-						</div>
-					</div>
-					<!-- 三图广告 -->
-					<div class="three-ad">
-						<div class="three-ad-left">
-							<image class="three-ad-left-image" resize="stretch" src="../../static/image/demo/demo1.jpg"></image>
-						</div>
-						<div class="three-ad-right">
-							<image class="three-ad-right-image" resize="stretch" src="../../static/image/demo/demo2.jpg"></image>
-							<image class="three-ad-right-image" resize="stretch" src="../../static/image/demo/demo2.jpg"></image>
-						</div>
-					</div>
-					
-					<!-- 大图广告 -->
-					
-					
-					<!-- 列表 -->
-				</cell>
-			</list>
-			
-			
+			<slider style="flex: 1;" :index="tabSelectedIndex" @change="changeSliderList">
+				<div v-for="(item, index) in tabItems" :key="index">
+					<list class="list" show-scrollbar="false">
+						<cell>
+							{{item.name}}
+							<!--  轮播图 -->
+							<slider 
+								class="slider"
+								auto-play="true"
+								interval="3000"
+								show-indicators="true"
+							>
+								<div class="frame" v-for="img in imageList">
+									<image class="image" resize="stretch" :src="img.src"></image>
+								</div>
+								<indicator class="indicator"></indicator>
+							</slider>
+							
+							<!-- 分类 -->
+							<div class="classtify">
+								<div class="classtify-item" v-for="(item,index) in classtifyData" :key="index">
+									<image class="classtify-item-image" :src="item.img_url" resize="stretch"></image>
+									<text class="text">{{item.name}}</text>
+								</div>
+							</div>
+							<!-- 三图广告 -->
+							<div class="three-ad">
+								<div class="three-ad-left">
+									<image class="three-ad-left-image" resize="stretch" src="../../static/image/demo/demo1.jpg"></image>
+								</div>
+								<div class="three-ad-right">
+									<image class="three-ad-right-image" resize="stretch" src="../../static/image/demo/demo2.jpg"></image>
+									<image class="three-ad-right-image" resize="stretch" src="../../static/image/demo/demo2.jpg"></image>
+								</div>
+							</div>
+							<!-- 大图广告 -->
+							<div class="big-ad">
+								<div class="title">
+									<text class="text">每日精选</text>
+								</div>
+								<image class="image" src="../../static/image/demo/demo4.jpg" resize="stretch"></image>
+							</div>
+							<!-- 列表 -->
+							<div class="shop-list">
+								<div class="shop-list-items" v-for="item in 10">
+									<div class="shop-list-items-item">
+										<image class="image" src="../../static/image/demo/demo9.jpg" resize="stretch"></image>
+										<div class="desc">
+											<text class="title">米家空调</text>
+											<text class="sub-title">1.5匹支流变频</text>
+											<div class="price">
+												<text class="price-unit">¥</text>
+												<text class="real-price">2199</text>
+												<div style="justify-content: flex-end;">
+													<text class="origin-price">¥2699</text>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="shop-list-items-item">
+										<image class="image" src="../../static/image/demo/demo9.jpg" resize="stretch"></image>
+										<div class="desc">
+											<text class="title">米家空调</text>
+											<text class="sub-title">1.5匹支流变频</text>
+											<div class="price">
+												<text class="price-unit">¥</text>
+												<text class="real-price">2199</text>
+												<div style="justify-content: flex-end;">
+													<text class="origin-price">¥2699</text>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							
+						</cell>
+					</list>
+				</div>
+			</slider>
 		</div>
 	</div>
 </template>
 
 <script>
+	const dom = uni.requireNativePlugin('dom')
 	export default {
 		data() {
 			return {
@@ -149,9 +191,36 @@
 				]
 			}
 		},
+		watch: {
+			tabSelectedIndex: function(newVal, oldVal) {
+				this.changeScroller()
+			}
+		},
 		methods: {
 			selectTab(index) {
 				this.tabSelectedIndex = index
+			},
+			changeSliderList(e) {
+				this.tabSelectedIndex = e.index
+			},
+			changeScroller() {
+				const el = this.$refs.scroller
+				const selectIndex = 2 // 以某一个为基准
+				const firstChild = el.children[0] // 第一个的位置
+				const lastChild = el.children[6] // 最后一个的位置
+				if (this.tabSelectedIndex >2) {
+					dom.getComponentRect(lastChild, (e)=>{
+						if (e.size.right > 750) {
+							dom.scrollToElement(lastChild, {})
+						}
+					})
+				} else {
+					dom.getComponentRect(firstChild, (e)=>{
+						if (e.size.left < 0) {
+							dom.scrollToElement(firstChild, {})
+						}
+					})
+				}
 			}
 		}
 	}
@@ -222,8 +291,9 @@
 				.classtify {
 					flex-direction: row;
 					flex-wrap: wrap;
+					width: 750rpx;
 					.classtify-item {
-						width: 150rpx;
+						width: 145rpx;
 						height: 140rpx;
 						flex-direction: column;
 						justify-content: center;
@@ -239,8 +309,8 @@
 					}
 				}
 				.three-ad {
-					flex: 1;
 					height: 530rpx;
+					width: 750rpx;
 					flex-direction: row;
 					.three-ad-left {
 						background-color: red;
@@ -258,6 +328,72 @@
 							width: 365rpx;
 							height: 262rpx;
 						}
+					}
+				}
+				.big-ad {
+					height: 375rpx;
+					width: 750rpx;
+					.title {
+						flex: 1;
+						justify-content: center;
+						.text {
+							margin-left: 25rpx;
+							font-size: 35rpx;
+							font-weight: bold;
+						}
+					}
+					.image {
+						height: 295rpx;
+					}
+				}
+				.shop-list {
+					width: 750rpx;
+					.shop-list-items {
+						height: 530rpx;
+						justify-content: space-between;
+						flex-direction: row;
+						margin-bottom: 10rpx;
+						.shop-list-items-item {
+							height: 530rpx;
+							width: 373rpx;
+							.image {
+								width: 373rpx;
+								height: 370rpx;
+							}
+							.desc {
+								padding-top: 20rpx;
+								padding-left: 20rpx;
+								flex: 1;
+								.title {
+									font-size: 30rpx;
+									margin-bottom: 10rpx;
+								}
+								.sub-title {
+									font-size: 20rpx;
+									margin-bottom: 10rpx;
+									color: #BABABA;
+								}
+								.price {
+									flex-direction: row;
+									.price-unit {
+										font-size: 20rpx;
+										color: #D44700;
+									}
+									.real-price {
+										font-size: 40rpx;
+										color: #D44700;
+									}
+									.origin-price {
+										font-size: 30rpx;
+										margin-left: 20rpx;
+										color:#AFAFAF;
+										text-decoration: line-through;
+									}
+								}
+								
+							}
+						}
+						
 					}
 				}
 			}
